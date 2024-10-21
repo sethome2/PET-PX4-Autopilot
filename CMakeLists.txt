@@ -173,7 +173,7 @@ set(config_module_list)
 set(config_kernel_list)
 
 # Find Python
-find_package(PythonInterp 3)
+find_package(PythonInterp)
 # We have a custom error message to tell users how to install python3.
 if(NOT PYTHONINTERP_FOUND)
 	message(FATAL_ERROR "Python 3 not found. Please install Python 3:\n"
