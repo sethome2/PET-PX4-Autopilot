@@ -38,6 +38,7 @@
 #include <lib/matrix/matrix/math.hpp>
 
 #include <uORB/topics/sensor_mag.h>
+#include <uORB/topics/sensor_accel.h>
 #include <uORB/topics/vehicle_imu.h>
 #include <uORB/topics/vehicle_imu_status.h>
 
@@ -68,8 +69,43 @@ private:
 	uORB::Subscription _vehicle_imu_status_sub{ORB_ID(vehicle_imu_status), 0};
 	uORB::Subscription _sensor_mag_sub{ORB_ID(sensor_mag), 0};
 
+
+	uORB::Subscription _vehicle_sensor_accel_sub{ORB_ID(sensor_accel), 0};
+
 	bool send() override
 	{
+		if (_vehicle_sensor_accel_sub.updated()) {
+			mavlink_scaled_imu_t msg{};
+
+			// struct sensor_accel         /* Type: Accerometer */
+			// {
+			// 	uint64_t timestamp;       /* Units is microseconds */
+			// 	float x;                  /* Axis X in m/s^2 */
+			// 	float y;                  /* Axis Y in m/s^2 */
+			// 	float z;                  /* Axis Z in m/s^2 */
+			// 	float temperature;        /* Temperature in degrees celsius */
+			// };
+			sensor_accel_s acc{};
+			_vehicle_sensor_accel_sub.copy(&acc);
+
+			msg.time_boot_ms = acc.timestamp / 1000;
+			msg.xacc = acc.x * 1000.0f;
+			msg.yacc = acc.y * 1000.0f;
+			msg.zacc = acc.z * 1000.0f;
+
+			msg.xgyro = 0;
+			msg.ygyro = 0;
+			msg.zgyro = 0;
+
+			msg.xmag = 0;
+			msg.ymag = 0;
+			msg.zmag = 0;
+
+			msg.temperature = 100;
+			mavlink_msg_scaled_imu_send_struct(_mavlink->get_channel(), &msg);
+			return true;
+		}
+
 		if (_vehicle_imu_sub.updated() || _sensor_mag_sub.updated()) {
 			mavlink_scaled_imu_t msg{};
 

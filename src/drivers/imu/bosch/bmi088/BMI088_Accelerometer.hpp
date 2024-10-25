@@ -55,7 +55,7 @@ private:
 	void exit_and_cleanup() override;
 
 	// Sensor Configuration
-	static constexpr uint32_t RATE{1600}; // 1600 Hz
+	static constexpr uint32_t RATE{1000}; // 1000 Hz sethome max 1600Hz
 	static constexpr float FIFO_SAMPLE_DT{1e6f / RATE};
 
 	static constexpr int32_t FIFO_MAX_SAMPLES{math::min(FIFO::SIZE / sizeof(FIFO::DATA), sizeof(sensor_accel_fifo_s::x) / sizeof(sensor_accel_fifo_s::x[0]))};
